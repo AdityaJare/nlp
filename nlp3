@@ -1,0 +1,96 @@
+!pip install nltk scikit-learn pandas
+
+import nltk
+import pandas as pd
+import string
+
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Download required data
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+# =================================
+# 1. SAMPLE DATA
+# =================================
+data = {
+    "text": [
+        "This is a sample sentence!",
+        "Text cleaning is very important.",
+        "NLP techniques are useful in real-world applications."
+    ],
+    "label": ["A", "B", "A"]
+}
+
+df = pd.DataFrame(data)
+print("Original Data:\n", df)
+
+# =================================
+# 2. TEXT CLEANING
+# =================================
+def clean_text(text):
+    text = text.lower()  # lowercase
+    text = text.translate(str.maketrans('', '', string.punctuation))  # remove punctuation
+    tokens = word_tokenize(text)  # tokenize
+    return tokens
+
+df['tokens'] = df['text'].apply(clean_text)
+
+# =================================
+# 3. REMOVE STOP WORDS
+# =================================
+stop_words = set(stopwords.words('english'))
+
+df['no_stopwords'] = df['tokens'].apply(
+    lambda words: [w for w in words if w not in stop_words]
+)
+
+# =================================
+# 4. LEMMATIZATION
+# =================================
+lemmatizer = WordNetLemmatizer()
+
+df['lemmatized'] = df['no_stopwords'].apply(
+    lambda words: [lemmatizer.lemmatize(w) for w in words]
+)
+
+# Convert back to sentence
+df['clean_text'] = df['lemmatized'].apply(lambda words: " ".join(words))
+
+# =================================
+# 5. LABEL ENCODING
+# =================================
+encoder = LabelEncoder()
+df['encoded_label'] = encoder.fit_transform(df['label'])
+
+# =================================
+# 6. TF-IDF REPRESENTATION
+# =================================
+tfidf = TfidfVectorizer()
+tfidf_matrix = tfidf.fit_transform(df['clean_text'])
+
+tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=tfidf.get_feature_names_out())
+
+# =================================
+# 7. SAVE OUTPUTS
+# =================================
+
+# Save cleaned data
+df.to_csv("cleaned_data.csv", index=False)
+
+# Save TF-IDF matrix
+tfidf_df.to_csv("tfidf_output.csv", index=False)
+
+# =================================
+# 8. DISPLAY OUTPUTS
+# =================================
+print("\nCleaned Data:\n", df[['text', 'clean_text', 'encoded_label']])
+print("\nTF-IDF Matrix:\n", tfidf_df)

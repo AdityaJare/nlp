@@ -1,0 +1,55 @@
+import nltk
+from nltk.tokenize import word_tokenize, TweetTokenizer, MWETokenizer, TreebankWordTokenizer
+from nltk.stem import PorterStemmer, SnowballStemmer, WordNetLemmatizer
+import string
+
+# Download required datasets (run once)
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+text = "Hello! This is a sample sentence. Let's test tokenization, stemming, and lemmatization :) #NLP"
+
+# Whitespace tokenization
+whitespace_tokens = text.split()
+print("Whitespace Tokenization:", whitespace_tokens)
+
+# Punctuation-based tokenization
+punctuation_tokens = []
+for word in whitespace_tokens:
+    word = word.strip(string.punctuation)
+    if word:
+        punctuation_tokens.append(word)
+
+print("Punctuation-based Tokenization:", punctuation_tokens)
+
+# Treebank tokenization
+treebank = TreebankWordTokenizer()
+treebank_tokens = treebank.tokenize(text)
+print("Treebank Tokenization:", treebank_tokens)
+
+# Tweet tokenization
+tweet_tokenizer = TweetTokenizer()
+tweet_tokens = tweet_tokenizer.tokenize(text)
+print("Tweet Tokenization:", tweet_tokens)
+
+# MWE tokenization
+mwe_tokenizer = MWETokenizer([('sample', 'sentence'), ('test', 'tokenization')])
+mwe_tokens = mwe_tokenizer.tokenize(word_tokenize(text))
+print("MWE Tokenization:", mwe_tokens)
+
+# Porter Stemmer
+porter = PorterStemmer()
+porter_stems = [porter.stem(word) for word in punctuation_tokens]
+print("Porter Stemming:", porter_stems)
+
+# Snowball Stemmer
+snowball = SnowballStemmer("english")
+snowball_stems = [snowball.stem(word) for word in punctuation_tokens]
+print("Snowball Stemming:", snowball_stems)
+
+# Lemmatization
+lemmatizer = WordNetLemmatizer()
+lemmatized_words = [lemmatizer.lemmatize(word) for word in punctuation_tokens]
+print("Lemmatization:", lemmatized_words)

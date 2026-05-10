@@ -1,0 +1,68 @@
+# =================================
+# MORPHOLOGY USING PYTHON (NLP)
+# =================================
+
+import nltk
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+# Download required resources (run once)
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+# Initialize tools
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+# =================================
+# 1. ADD-DELETE MORPHOLOGY FUNCTION
+# =================================
+def morphology_rules(word):
+    results = []
+
+    # Rule 1: Add prefix "un"
+    results.append(("Add Prefix 'un'", word, "un" + word))
+
+    # Rule 2: Add suffix "ing"
+    if word.endswith('e'):
+        new_word = word[:-1] + "ing"   # delete 'e'
+        results.append(("Drop 'e' + ing", word, new_word))
+    else:
+        results.append(("Add 'ing'", word, word + "ing"))
+
+    # Rule 3: y → i + ness
+    if word.endswith('y'):
+        new_word = word[:-1] + "iness"
+        results.append(("y → i + ness", word, new_word))
+    else:
+        results.append(("Add 'ness'", word, word + "ness"))
+
+    # Rule 4: Add suffix "er"
+    results.append(("Add 'er'", word, word + "er"))
+
+    return results
+
+# =================================
+# 2. STEMMING & LEMMATIZATION
+# =================================
+def nlp_processing(word):
+    stem = stemmer.stem(word)
+    lemma = lemmatizer.lemmatize(word)
+
+    return stem, lemma
+
+# =================================
+# 3. MAIN PROGRAM
+# =================================
+word = input("Enter a word: ")
+
+print("\n--- Morphology (Add-Delete Table) ---")
+results = morphology_rules(word)
+
+for rule, base, new in results:
+    print(f"{rule:20} | {base:10} -> {new}")
+
+print("\n--- NLP Processing ---")
+stem, lemma = nlp_processing(word)
+
+print(f"Stemmed Word     : {stem}")
+print(f"Lemmatized Word  : {lemma}")
